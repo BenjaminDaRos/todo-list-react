@@ -1,26 +1,47 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { createRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { v1 as uuidv1 } from 'uuid';
 
-function App() {
+import './App.css';
+import './index.css';
+import TodoList from './todos/todoList';
+import { addTodo, selectTodoList } from './app/features/todo/todoSlice';
+
+
+const TodoReact = () => {
+  const dispatch = useDispatch();
+  const inputTodoRef = createRef<HTMLInputElement>();
+
+  const handleNewTodo = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.keyCode === 13) {
+      addNewTodo();
+    }
+  }
+
+  const addNewTodo = () => {
+    if (inputTodoRef && inputTodoRef.current && inputTodoRef.current.value) {
+      dispatch(addTodo({ id: uuidv1(), task: inputTodoRef.current.value, active: false }))
+      inputTodoRef.current.value = "";
+    }
+  }
+
+  const currentList = useSelector(selectTodoList);
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+    <div>
+        <header className="header">
+          <h1>todos</h1>
+          <input
+            ref={inputTodoRef}
+            className="new-todo"
+            placeholder="What needs to be done ?"
+            onKeyDown={e => handleNewTodo(e)}
+            autoFocus={true}
+          />
+          <TodoList todos={currentList} />
       </header>
     </div>
-  );
+  )
 }
 
-export default App;
+export { TodoReact };
